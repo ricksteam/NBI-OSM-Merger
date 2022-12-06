@@ -1,0 +1,9 @@
+1 - State Name,8 - Structure Number,22 - Owner Agency,16 - Latitude (decimal),17 - Longitude (decimal),9 - Location,59 - Superstructure Condition Rating,60 - Substructure Condition Rating,64 - Operating Rating (US tons),63 - Operating Rating Method Code,58 - Deck Condition Rating
+'31 - Nebraska',C002841205P    ,'County Highway Agency',41.3154,-96.0524,'0.4 N OF BLAIR HIGH RD   ','7','7',97,'1','7'
+'31 - Nebraska',C002841215P    ,'County Highway Agency',41.3208,-96.043,'.1E WENNINGHOFF ROAD     ','N','N',36.4,'0','N'
+'31 - Nebraska',C002841207P    ,'County Highway Agency',41.3209,-96.0449,'.1W WENNINGHOFF ROAD     ','7','6',41.9,'1','7'
+'31 - Nebraska',C002841210P    ,'County Highway Agency',41.3159,-96.0462,'IRVINGTON AREA           ','N','N',36.4,'0','N'
+'31 - Nebraska',U182514510P    ,'City or Municipal Highway Agency',41.3217,-96.0333,'JCT N133/L-28K 1E .4N    ','N','N',36.4,'0','N'
+'31 - Nebraska',C002813725P    ,'Private (Other Than Railroad)',41.3217,-96.0394,'.2W OF N 120TH ON DEER CR','N','N',36.4,'0','N'
+'31 - Nebraska',C002841212P    ,'Private (Other Than Railroad)',41.3236,-96.0449,'.2M W OF WENNINGHOFF     ','7','6',83.8,'1','7'
+'31 - Nebraska',C002841220P    ,'Private (Other Than Railroad)',41.3293,-96.0482,'140'' W WENNINGHOFF RD    ','7','6',87.1,'1','7'
