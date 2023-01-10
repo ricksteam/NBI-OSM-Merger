@@ -7,6 +7,15 @@ class nbiparser:
     def modified_data(self):
         final_list = []
         for ele in self.myList:
-            final_list.append({"id":ele["8 - Structure Number"].strip(),"lat":ele["16 - Latitude (decimal)"],"lon":ele["17 - Longitude (decimal)"]})
+            final_list.append({
+                "id":ele["8 - Structure Number"].strip(),
+                "lat":ele["16 - Latitude (decimal)"],
+                "lon":ele["17 - Longitude (decimal)"],
+                "super-cond":ele["59 - Superstructure Condition Rating"],
+                "sub-cond":ele["60 - Substructure Condition Rating"],
+                "op-rating":ele["64 - Operating Rating (US tons)"],
+                "op-method-code":ele["63 - Operating Rating Method Code"],
+                "deck-rating":ele["58 - Deck Condition Rating"],
+                })
         return final_list
         
