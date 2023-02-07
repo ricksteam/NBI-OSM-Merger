@@ -17,15 +17,18 @@ nbi_dat =  c1.modified_data()
 ways = {}
 
 for i, bridge in enumerate(nbi_dat):
+    # Drop culvert bridges for now. 
+    if bridge['super-cond'] == "'N'":
+        continue
+
     # TODO: Try to get just the closest node (not way) from this Nominatim request. (This may not be necessary, culverts are causing issues)
-    # TODO: Check #43: structure type in the NBI data for culverts. Likely drop them if data is empty.
     response = \
     nx.downloader.nominatim_request({'format':'jsonv2',
                                     'lat':bridge['lat'],
                                     'lon':bridge['lon'],
                                     },
                                     "reverse")
-    print(response['osm_type'], response['osm_id'])
+    # print(response['osm_type'], response['osm_id'])
     ways.update({str(response['osm_id']): bridge})
 
 # Test API call
@@ -59,18 +62,24 @@ for i, bridge in enumerate(nbi_dat):
 # 'boundingbox': ['41.3150507', '41.31551', '-96.0524154', '-96.0523376']
 # }
 
-tree = et.parse("sample2.osm")
+tree = et.parse("area-original.osm")
 root = tree.getroot()
 # root.find()
 for osm_way in root.findall("way"):
     if osm_way.attrib['id'] in list(ways.keys()):
-        print(osm_way.attrib['id'])
+        print(osm_way.attrib['id'] + ": ", end="")
+        # Check stored ways for bridge/footway tags. 
+        # If it is not a bridge, list it out to view the issues.
+        if osm_way.find(".//tag[@k='bridge'][@v='yes']") == None:
+            print("NOT A BRIDGE:", len(osm_way.findall(".//nd")), "nodes")
+            continue
         NBIElem(osm_way, 'nbi', 'yes')
         NBIElem(osm_way, 'nbi:super-cond', ways[osm_way.attrib['id']]['super-cond'])
         NBIElem(osm_way, 'nbi:sub-cond', ways[osm_way.attrib['id']]['sub-cond'])
         NBIElem(osm_way, 'nbi:op-rating', ways[osm_way.attrib['id']]['op-rating'])
         NBIElem(osm_way, 'nbi:op-method-code', ways[osm_way.attrib['id']]['op-method-code'])
         NBIElem(osm_way, 'nbi:deck-rating', ways[osm_way.attrib['id']]['deck-rating'])
+        print("BRIDGE:\t", len(osm_way.findall(".//nd")), "nodes")
 
 
-tree.write('sample.osm')
+tree.write('area-merged-culverts.osm')
