@@ -62,6 +62,9 @@ for i, bridge in enumerate(nbi_dat):
 # 'boundingbox': ['41.3150507', '41.31551', '-96.0524154', '-96.0523376']
 # }
 
+
+# This is all the OLD merging process using XML
+# We want to instead, parse these new tags into a new OSM file.
 tree = et.parse("area-original.osm")
 root = tree.getroot()
 # root.find()

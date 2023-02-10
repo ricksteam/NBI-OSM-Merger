@@ -1,7 +1,7 @@
 import osmium
 import numpy as np
 
-class OSMHandler(osmium.SimpleHandler):
+class OSMParser(osmium.SimpleHandler):
     def __init__(self) -> None:
         super().__init__()
         self.loops = 0
@@ -60,3 +60,27 @@ class OSMHandler(osmium.SimpleHandler):
         
         return clean
 
+class OSMNBIMerger(osmium.SimpleHandler):
+    def __init__(self, writer, ways) -> None:
+        super().__init__()
+        self.writer = writer
+        self.ways = ways
+
+    def is_bridge(self, tags):
+        return tags.get('bridge') == 'yes' and tags.get('highway') != 'footway'
+
+    def way(self, w):
+        id = str(w.id)
+        if self.is_bridge(w.tags) and id in list(self.ways.keys()):
+            # print(id)
+            # TODO: Instead of replacing with just NBI tags, keep old ones too.
+            # This could be done to just write the entire file and skip the merging step.
+            new = w.replace(tags={
+                                'nbi':'yes',
+                                'nbi:super-cond':self.ways[id]['super-cond'],
+                                'nbi:sub-cond':self.ways[id]['sub-cond'],
+                                'nbi:op-rating':self.ways[id]['op-rating'],
+                                'nbi:op-method-code':self.ways[id]['op-method-code'],
+                                'nbi:deck-rating':self.ways[id]['deck-rating'],
+                                })
+            self.writer.add_way(new)

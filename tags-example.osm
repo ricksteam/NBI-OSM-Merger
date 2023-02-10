@@ -1,0 +1,43 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version="0.6" generator="libosmium/2.18.0">
+  <way id="166090695" version="3" timestamp="2018-09-10T18:03:54Z" uid="5199641" user="Stretch Longfellow" changeset="62462861">
+    <nd ref="134190493"/>
+    <nd ref="134190496"/>
+    <tag k="nbi" v="yes"/>
+    <tag k="nbi:super-cond" v="7"/>
+    <tag k="nbi:sub-cond" v="6"/>
+    <tag k="nbi:op-rating" v="41.9"/>
+    <tag k="nbi:op-method-code" v="1"/>
+    <tag k="nbi:deck-rating" v="7"/>
+  </way>
+  <way id="166316748" version="2" timestamp="2012-06-06T06:43:56Z" uid="227972" user="Your Village Maps" changeset="11812392">
+    <nd ref="1777699792"/>
+    <nd ref="1777699823"/>
+    <tag k="nbi" v="yes"/>
+    <tag k="nbi:super-cond" v="7"/>
+    <tag k="nbi:sub-cond" v="6"/>
+    <tag k="nbi:op-rating" v="83.8"/>
+    <tag k="nbi:op-method-code" v="1"/>
+    <tag k="nbi:deck-rating" v="7"/>
+  </way>
+  <way id="166431111" version="4" timestamp="2018-09-10T18:03:53Z" uid="5199641" user="Stretch Longfellow" changeset="62462861">
+    <nd ref="1778747730"/>
+    <nd ref="1778747722"/>
+    <tag k="nbi" v="yes"/>
+    <tag k="nbi:super-cond" v="7"/>
+    <tag k="nbi:sub-cond" v="7"/>
+    <tag k="nbi:op-rating" v="97"/>
+    <tag k="nbi:op-method-code" v="1"/>
+    <tag k="nbi:deck-rating" v="7"/>
+  </way>
+  <way id="612496367" version="1" timestamp="2018-07-31T05:17:19Z" uid="5659851" user="marthaleena" changeset="61215641">
+    <nd ref="1778162551"/>
+    <nd ref="1778162568"/>
+    <tag k="nbi" v="yes"/>
+    <tag k="nbi:super-cond" v="7"/>
+    <tag k="nbi:sub-cond" v="6"/>
+    <tag k="nbi:op-rating" v="87.1"/>
+    <tag k="nbi:op-method-code" v="1"/>
+    <tag k="nbi:deck-rating" v="7"/>
+  </way>
+</osm>
