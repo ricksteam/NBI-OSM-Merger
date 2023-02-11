@@ -1,8 +1,22 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <osm version="0.6" generator="libosmium/2.18.0">
-  <way id="166090695" version="3" timestamp="2018-09-10T18:03:54Z" uid="5199641" user="Stretch Longfellow" changeset="62462861">
+  <way id="166090695" version="4" timestamp="2018-09-10T18:03:54Z" uid="5199641" user="Stretch Longfellow" changeset="62462861">
     <nd ref="134190493"/>
     <nd ref="134190496"/>
+    <tag k="bridge" v="yes"/>
+    <tag k="highway" v="primary"/>
+    <tag k="lanes" v="2"/>
+    <tag k="layer" v="1"/>
+    <tag k="name" v="Sorensen Parkway"/>
+    <tag k="oneway" v="yes"/>
+    <tag k="surface" v="paved"/>
+    <tag k="tiger:cfcc" v="A41"/>
+    <tag k="tiger:county" v="Douglas, NE"/>
+    <tag k="tiger:name_base" v="Sorensen; Sorensen; Soresen"/>
+    <tag k="tiger:name_type" v="Pky"/>
+    <tag k="tiger:reviewed" v="no"/>
+    <tag k="tiger:zip_left" v="68152; 68134; 68122"/>
+    <tag k="tiger:zip_right" v="68152; 68134; 68122"/>
     <tag k="nbi" v="yes"/>
     <tag k="nbi:super-cond" v="7"/>
     <tag k="nbi:sub-cond" v="6"/>
@@ -10,9 +24,17 @@
     <tag k="nbi:op-method-code" v="1"/>
     <tag k="nbi:deck-rating" v="7"/>
   </way>
-  <way id="166316748" version="2" timestamp="2012-06-06T06:43:56Z" uid="227972" user="Your Village Maps" changeset="11812392">
+  <way id="166316748" version="3" timestamp="2012-06-06T06:43:56Z" uid="227972" user="Your Village Maps" changeset="11812392">
     <nd ref="1777699792"/>
     <nd ref="1777699823"/>
+    <tag k="access" v="yes"/>
+    <tag k="bridge" v="yes"/>
+    <tag k="highway" v="residential"/>
+    <tag k="layer" v="1"/>
+    <tag k="name" v="Read Street"/>
+    <tag k="oneway" v="no"/>
+    <tag k="source" v="bing"/>
+    <tag k="surface" v="paved"/>
     <tag k="nbi" v="yes"/>
     <tag k="nbi:super-cond" v="7"/>
     <tag k="nbi:sub-cond" v="6"/>
@@ -20,9 +42,26 @@
     <tag k="nbi:op-method-code" v="1"/>
     <tag k="nbi:deck-rating" v="7"/>
   </way>
-  <way id="166431111" version="4" timestamp="2018-09-10T18:03:53Z" uid="5199641" user="Stretch Longfellow" changeset="62462861">
+  <way id="166431111" version="5" timestamp="2018-09-10T18:03:53Z" uid="5199641" user="Stretch Longfellow" changeset="62462861">
     <nd ref="1778747730"/>
     <nd ref="1778747722"/>
+    <tag k="access" v="yes"/>
+    <tag k="bridge" v="yes"/>
+    <tag k="highway" v="primary"/>
+    <tag k="lanes" v="2"/>
+    <tag k="layer" v="1"/>
+    <tag k="motor_vehicle" v="yes"/>
+    <tag k="name" v="Sorensen Parkway"/>
+    <tag k="oneway" v="yes"/>
+    <tag k="source" v="bing"/>
+    <tag k="surface" v="paved"/>
+    <tag k="tiger:cfcc" v="A41"/>
+    <tag k="tiger:county" v="Douglas, NE"/>
+    <tag k="tiger:name_base" v="Irvington"/>
+    <tag k="tiger:name_type" v="Rd"/>
+    <tag k="tiger:reviewed" v="aerial"/>
+    <tag k="tiger:zip_left" v="68122"/>
+    <tag k="tiger:zip_right" v="68122"/>
     <tag k="nbi" v="yes"/>
     <tag k="nbi:super-cond" v="7"/>
     <tag k="nbi:sub-cond" v="7"/>
@@ -30,9 +69,17 @@
     <tag k="nbi:op-method-code" v="1"/>
     <tag k="nbi:deck-rating" v="7"/>
   </way>
-  <way id="612496367" version="1" timestamp="2018-07-31T05:17:19Z" uid="5659851" user="marthaleena" changeset="61215641">
+  <way id="612496367" version="2" timestamp="2018-07-31T05:17:19Z" uid="5659851" user="marthaleena" changeset="61215641">
     <nd ref="1778162551"/>
     <nd ref="1778162568"/>
+    <tag k="access" v="yes"/>
+    <tag k="bridge" v="yes"/>
+    <tag k="highway" v="residential"/>
+    <tag k="layer" v="1"/>
+    <tag k="name" v="Craig Street"/>
+    <tag k="oneway" v="no"/>
+    <tag k="source" v="bing"/>
+    <tag k="surface" v="paved"/>
     <tag k="nbi" v="yes"/>
     <tag k="nbi:super-cond" v="7"/>
     <tag k="nbi:sub-cond" v="6"/>
