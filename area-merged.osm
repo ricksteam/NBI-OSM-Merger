@@ -1,5 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<osm version="0.6" generator="osmium/1.14.0">
+<osm version="0.6" generator="libosmium/2.18.0">
   <node id="133929291" version="2" timestamp="2009-12-06T20:11:54Z" uid="147510" user="woodpeck_fixbot" changeset="3309513" lat="41.316102" lon="-96.044733"/>
   <node id="133930428" version="2" timestamp="2009-10-29T20:57:16Z" uid="147510" user="woodpeck_fixbot" changeset="2984621" lat="41.312474" lon="-96.042835"/>
   <node id="133935433" version="2" timestamp="2009-10-29T20:57:44Z" uid="147510" user="woodpeck_fixbot" changeset="2984621" lat="41.314141" lon="-96.046123"/>
@@ -12724,24 +12724,6 @@
     <tag k="tiger:zip_left" v="68152; 68134; 68122"/>
     <tag k="tiger:zip_right" v="68152; 68134; 68122"/>
   </way>
-  <way id="166090695" version="3" timestamp="2018-09-10T18:03:54Z" uid="5199641" user="Stretch Longfellow" changeset="62462861">
-    <nd ref="134190493"/>
-    <nd ref="134190496"/>
-    <tag k="bridge" v="yes"/>
-    <tag k="highway" v="primary"/>
-    <tag k="lanes" v="2"/>
-    <tag k="layer" v="1"/>
-    <tag k="name" v="Sorensen Parkway"/>
-    <tag k="oneway" v="yes"/>
-    <tag k="surface" v="paved"/>
-    <tag k="tiger:cfcc" v="A41"/>
-    <tag k="tiger:county" v="Douglas, NE"/>
-    <tag k="tiger:name_base" v="Sorensen; Sorensen; Soresen"/>
-    <tag k="tiger:name_type" v="Pky"/>
-    <tag k="tiger:reviewed" v="no"/>
-    <tag k="tiger:zip_left" v="68152; 68134; 68122"/>
-    <tag k="tiger:zip_right" v="68152; 68134; 68122"/>
-  </way>
   <way id="166090695" version="4" timestamp="2018-09-10T18:03:54Z" uid="5199641" user="Stretch Longfellow" changeset="62462861">
     <nd ref="134190493"/>
     <nd ref="134190496"/>
@@ -14581,18 +14563,6 @@
     <tag k="access" v="yes"/>
     <tag k="highway" v="residential"/>
     <tag k="lanes" v="1"/>
-    <tag k="name" v="Read Street"/>
-    <tag k="oneway" v="no"/>
-    <tag k="source" v="bing"/>
-    <tag k="surface" v="paved"/>
-  </way>
-  <way id="166316748" version="2" timestamp="2012-06-06T06:43:56Z" uid="227972" user="Your Village Maps" changeset="11812392">
-    <nd ref="1777699792"/>
-    <nd ref="1777699823"/>
-    <tag k="access" v="yes"/>
-    <tag k="bridge" v="yes"/>
-    <tag k="highway" v="residential"/>
-    <tag k="layer" v="1"/>
     <tag k="name" v="Read Street"/>
     <tag k="oneway" v="no"/>
     <tag k="source" v="bing"/>
@@ -17153,27 +17123,6 @@
     <tag k="source" v="bing"/>
     <tag k="surface" v="concrete"/>
   </way>
-  <way id="166431111" version="4" timestamp="2018-09-10T18:03:53Z" uid="5199641" user="Stretch Longfellow" changeset="62462861">
-    <nd ref="1778747730"/>
-    <nd ref="1778747722"/>
-    <tag k="access" v="yes"/>
-    <tag k="bridge" v="yes"/>
-    <tag k="highway" v="primary"/>
-    <tag k="lanes" v="2"/>
-    <tag k="layer" v="1"/>
-    <tag k="motor_vehicle" v="yes"/>
-    <tag k="name" v="Sorensen Parkway"/>
-    <tag k="oneway" v="yes"/>
-    <tag k="source" v="bing"/>
-    <tag k="surface" v="paved"/>
-    <tag k="tiger:cfcc" v="A41"/>
-    <tag k="tiger:county" v="Douglas, NE"/>
-    <tag k="tiger:name_base" v="Irvington"/>
-    <tag k="tiger:name_type" v="Rd"/>
-    <tag k="tiger:reviewed" v="aerial"/>
-    <tag k="tiger:zip_left" v="68122"/>
-    <tag k="tiger:zip_right" v="68122"/>
-  </way>
   <way id="166431111" version="5" timestamp="2018-09-10T18:03:53Z" uid="5199641" user="Stretch Longfellow" changeset="62462861">
     <nd ref="1778747730"/>
     <nd ref="1778747722"/>
@@ -19029,18 +18978,6 @@
     <tag k="highway" v="residential"/>
     <tag k="name" v="North 89th Avenue"/>
     <tag k="oneway" v="yes"/>
-    <tag k="source" v="bing"/>
-    <tag k="surface" v="paved"/>
-  </way>
-  <way id="612496367" version="1" timestamp="2018-07-31T05:17:19Z" uid="5659851" user="marthaleena" changeset="61215641">
-    <nd ref="1778162551"/>
-    <nd ref="1778162568"/>
-    <tag k="access" v="yes"/>
-    <tag k="bridge" v="yes"/>
-    <tag k="highway" v="residential"/>
-    <tag k="layer" v="1"/>
-    <tag k="name" v="Craig Street"/>
-    <tag k="oneway" v="no"/>
     <tag k="source" v="bing"/>
     <tag k="surface" v="paved"/>
   </way>

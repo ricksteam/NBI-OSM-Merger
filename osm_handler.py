@@ -85,3 +85,11 @@ class OSMNBIMerger(osmium.SimpleHandler):
             all_tags = orig_tags | new_tags     
             new = w.replace(tags=all_tags, version=w.version+1)
             self.writer.add_way(new)
+        else:
+            self.writer.add_way(w)
+    
+    def node(self, n):
+        self.writer.add_node(n)
+
+    def relation(self, r):
+        self.writer.add_relation(r)

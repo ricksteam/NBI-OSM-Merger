@@ -30,8 +30,14 @@ for i, bridge in enumerate(nbi_dat):
 # Use the OSM parser to write new OSM data to a file.
 
 # We will write to a tags<TIME>.osm file
-s_writer = osmium.SimpleWriter('tags'+str(datetime.timestamp(datetime.now()))+'.osm')
+time = str(datetime.timestamp(datetime.now()))
+
+# Create the PBF Handler and apply the desired OSM data for tag editing.
+osm_writer = osmium.SimpleWriter('merge'+time+'.osm')
+file_writer = OSMNBIMerger(osm_writer, ways)
 
 # Create the OSM Handler and apply the desired OSM data for tag editing.
-file_writer = OSMNBIMerger(s_writer, ways)
+# pbf_writer = osmium.SimpleWriter('merge'+time+'.pbf')
+# file_writer = OSMNBIMerger(pbf_writer, ways)
+
 file_writer.apply_file("area-original.osm")
