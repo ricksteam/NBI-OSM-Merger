@@ -1,8 +1,11 @@
-import osmnx as nx
 import osmium
 from osm_handler import *
 from nbi_parser import nbiparser
 from datetime import datetime
+from nom_api import nominatim
+
+# Prep Nominatim API
+nom = nominatim("http://52.201.224.66:8080")
 
 # parse nbi data
 nbi_file = "Updated_NBI_DATA_POC.csv"
@@ -17,12 +20,11 @@ for i, bridge in enumerate(nbi_dat):
     if bridge['super-cond'] == "N":
         continue
 
-    response = \
-    nx.downloader.nominatim_request({'format':'jsonv2',
-                                    'lat':bridge['lat'],
-                                    'lon':bridge['lon'],
-                                    },
-                                    "reverse")
+    response = nom.request({'format':'jsonv2',
+            'lat':bridge['lat'],
+            'lon':bridge['lon'],},
+            'reverse')
+
     # print(response['osm_type'], response['osm_id'])
     ways.update({str(response['osm_id']): bridge})
 

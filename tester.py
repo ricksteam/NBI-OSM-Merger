@@ -1,11 +1,11 @@
-from osm_handler import OSMHandler
+from osm_handler import OSMParser
 from nbi_parser import nbiparser
 
 # RUN __main__
-osm = OSMHandler()
+osm = OSMParser()
 
 # Parse osm data
-osm_file = "sample2.osm"
+osm_file = "area-merged.pbf"
 osm.parse(osm_file)
 osm_dat = osm.clean()
 
