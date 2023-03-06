@@ -16,6 +16,7 @@ class nbiparser:
                 "op-rating":ele["64 - Operating Rating (US tons)"],
                 "op-method-code":ele["63 - Operating Rating Method Code"].strip("'"),
                 "deck-rating":ele["58 - Deck Condition Rating"].strip("'"),
+                "culvert-rating":ele["62 - Culverts Condition Rating"].strip("'"),
                 })
         return final_list
         

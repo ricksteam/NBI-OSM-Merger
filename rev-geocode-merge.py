@@ -8,7 +8,7 @@ from nom_api import nominatim
 nom = nominatim("http://52.201.224.66:8080")
 
 # parse nbi data
-nbi_file = "Updated_NBI_DATA_POC.csv"
+nbi_file = "/in/NE_NBI_DATA.csv"
 c1 =  nbiparser(nbi_file)
 nbi_dat =  c1.modified_data()
 
@@ -42,4 +42,4 @@ file_writer = OSMNBIMerger(osm_writer, ways)
 # pbf_writer = osmium.SimpleWriter('merge'+time+'.pbf')
 # file_writer = OSMNBIMerger(pbf_writer, ways)
 
-file_writer.apply_file("area-original.osm")
+file_writer.apply_file("/out/nebraska-latest.osm.pbf")
