@@ -1,6 +1,18 @@
 import osmium
 import numpy as np
 
+class OSMBridgeCounter(osmium.SimpleHandler):
+    def __init__(self) -> None:
+        super().__init__()
+        self.total = 0
+        self.footway = 0
+
+    def way(self, w):
+        if w.tags.get('bridge') == 'yes':
+            self.total += 1
+            if w.tags.get('highway') == 'footway':
+                self.footway += 1
+
 class OSMParser(osmium.SimpleHandler):
     def __init__(self) -> None:
         super().__init__()
@@ -54,23 +66,28 @@ class OSMParser(osmium.SimpleHandler):
                 lons.append(float(self.nodes[node]['lon']))
             mid_lat = np.average(lats)
             mid_lon = np.average(lons)
-            print(mid_lat,mid_lon)
+            # print(mid_lat,mid_lon)
 
             clean.append({'id':id, 'lat': round(mid_lat, 4), 'lon': round(mid_lon, 4)})
         
         return clean
 
 class OSMNBIMerger(osmium.SimpleHandler):
-    def __init__(self, writer, ways) -> None:
+    def __init__(self, writer, ways, debug=False) -> None:
         super().__init__()
         self.writer = writer
         self.ways = ways
+        self.__debug__ = debug # If True, OSM and matching values will be logged for each entry.
+        if self.__debug__:
+            self.log = open('out/osm_log', 'w')
 
     def is_bridge(self, tags):
         return tags.get('bridge') == 'yes' and tags.get('highway') != 'footway'
 
     def way(self, w):
         id = str(w.id)
+        if self.__debug__:
+            self.log.write(f'{w.tags.get("bridge")=="yes"}, {w.tags.get("highway")!="footway"}, {id in list(self.ways.keys())}\n')
         if self.is_bridge(w.tags) and id in list(self.ways.keys()):
             # print(id)
             new_tags = {
@@ -80,6 +97,7 @@ class OSMNBIMerger(osmium.SimpleHandler):
                                 'nbi:op-rating':self.ways[id]['op-rating'],
                                 'nbi:op-method-code':self.ways[id]['op-method-code'],
                                 'nbi:deck-rating':self.ways[id]['deck-rating'],
+                                'nbi:inv-rating':self.ways[id]['inv-rating'],
                                 }
             orig_tags = dict(w.tags)
             all_tags = orig_tags | new_tags     
@@ -93,3 +111,7 @@ class OSMNBIMerger(osmium.SimpleHandler):
 
     def relation(self, r):
         self.writer.add_relation(r)
+
+    def close(self):
+        if self.__debug__:
+            self.log.close()

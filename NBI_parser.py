@@ -11,12 +11,13 @@ class nbiparser:
                 "id":ele["8 - Structure Number"].strip(),
                 "lat":ele["16 - Latitude (decimal)"],
                 "lon":ele["17 - Longitude (decimal)"],
+                "deck-rating":ele["58 - Deck Condition Rating"].strip("'"),
                 "super-cond":ele["59 - Superstructure Condition Rating"].strip("'"),
                 "sub-cond":ele["60 - Substructure Condition Rating"].strip("'"),
-                "op-rating":ele["64 - Operating Rating (US tons)"],
-                "op-method-code":ele["63 - Operating Rating Method Code"].strip("'"),
-                "deck-rating":ele["58 - Deck Condition Rating"].strip("'"),
                 "culvert-rating":ele["62 - Culverts Condition Rating"].strip("'"),
+                "op-method-code":ele["63 - Operating Rating Method Code"].strip("'"),
+                "op-rating":ele["64 - Operating Rating (US tons)"],
+                "inv-rating":ele["66 - Inventory Rating (US tons)"],
                 })
         return final_list
         
