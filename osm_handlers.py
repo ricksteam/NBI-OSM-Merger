@@ -77,8 +77,8 @@ class OSMNBIMerger(osmium.SimpleHandler):
         super().__init__()
         self.writer = writer
         self.ways = ways
-        self.__debug__ = debug # If True, OSM and matching values will be logged for each entry.
-        if self.__debug__:
+        self.debug = debug # If True, OSM and matching values will be logged for each entry.
+        if self.debug:
             self.log = open('out/osm_log', 'w')
 
     def is_bridge(self, tags):
@@ -86,12 +86,17 @@ class OSMNBIMerger(osmium.SimpleHandler):
 
     def way(self, w):
         id = str(w.id)
-        if self.__debug__:
+        if self.debug:
             self.log.write(f'{w.tags.get("bridge")=="yes"}, {w.tags.get("highway")!="footway"}, {id in list(self.ways.keys())}\n')
-        if self.is_bridge(w.tags) and id in list(self.ways.keys()):
+        # if self.is_bridge(w.tags) and id in list(self.ways.keys()):
+       
+        # For now, we are ignoring bridge labels so we can assign more data.
+        # if w.tags.get('bridge') == 'yes' \
+        if w.tags.get('highway') != 'footway' \
+            and id in list(self.ways.keys()):
             # print(id)
             new_tags = {
-                                'nbi':'yes',
+                                'nbi:id':str(self.ways[id]['id-state']+","+self.ways[id]['id-no']+","+self.ways[id]['id-owner']),
                                 'nbi:super-cond':self.ways[id]['super-cond'],
                                 'nbi:sub-cond':self.ways[id]['sub-cond'],
                                 'nbi:op-rating':self.ways[id]['op-rating'],
@@ -113,5 +118,56 @@ class OSMNBIMerger(osmium.SimpleHandler):
         self.writer.add_relation(r)
 
     def close(self):
-        if self.__debug__:
+        if self.debug:
+            self.log.close()
+
+## This class is unfinished and will likelt remain as so. DO NOT USE IT.
+class OSMNodeMerger(osmium.SimpleHandler):
+    def __init__(self, writer, bridges, debug=False) -> None:
+        super().__init__()
+        self.writer = writer
+        self.bridges = bridges
+        self.debug = debug # If True, OSM and matching values will be logged for each entry.
+        if self.debug:
+            self.log = open('out/osm_log', 'w')
+        self.processed_bridges = False
+
+    # def is_bridge(self, tags):
+    #     return tags.get('bridge') == 'yes' and tags.get('highway') != 'footway'
+
+
+    def node(self, n):
+        if not self.processed_bridges:
+            self.processed_bridges = True
+            # __processNBI__
+            id = 1
+            for bridge in self.bridges:
+                # print(bridge)
+                new_tags = {
+                                    'nbi:id':str(bridge['id-state']),
+                                    'nbi:super-cond':bridge['super-cond'],
+                                    'nbi:sub-cond':bridge['sub-cond'],
+                                    'nbi:op-rating':bridge['op-rating'],
+                                    'nbi:op-method-code':bridge['op-method-code'],
+                                    'nbi:deck-rating':bridge['deck-rating'],
+                                    'nbi:inv-rating':bridge['inv-rating'],
+                }
+                
+                # loc = osmium.osmium.osm.lo
+                # Create an osmium node
+                # new_node = n.replace(tags={}, id=id, version=1, uid=0, location=loc)
+
+                # Add the newly created node
+                # self.writer.add_node(new_node)
+            
+        self.writer.add_node(n)
+    
+    def way(self, w):
+        self.writer.add_way(w)
+
+    def relation(self, r):
+        self.writer.add_relation(r)
+
+    def close(self):
+        if self.debug:
             self.log.close()

@@ -1,8 +1,7 @@
 import osmium
-from osm_handler import *
-from nbi_parser import nbiparser
+from osm_handlers import OSMNBIMerger
+from util import nbiparser, nominatim
 from datetime import datetime
-from nom_api import nominatim
 from tqdm import tqdm
 
 # If true, NBI info will be logged.

@@ -1,5 +1,5 @@
-from osm_handler import OSMParser
-from nbi_parser import nbiparser
+from osm_handlers import OSMParser
+from util import nbiparser
 
 # RUN __main__
 osm = OSMParser()
