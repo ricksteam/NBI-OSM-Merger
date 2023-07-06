@@ -72,7 +72,7 @@ class OSMParser(osmium.SimpleHandler):
         
         return clean
 
-class OSMNBIMerger(osmium.SimpleHandler):
+class OSMNBIMergerNominatim(osmium.SimpleHandler):
     def __init__(self, writer, ways, debug=False) -> None:
         super().__init__()
         self.writer = writer
@@ -95,6 +95,47 @@ class OSMNBIMerger(osmium.SimpleHandler):
         if w.tags.get('highway') != 'footway' \
             and id in list(self.ways.keys()):
             # print(id)
+            new_tags = {
+                                'nbi:id':str(self.ways[id]['id-state']+","+self.ways[id]['id-no']+","+self.ways[id]['id-owner']),
+                                'nbi:super-cond':self.ways[id]['super-cond'],
+                                'nbi:sub-cond':self.ways[id]['sub-cond'],
+                                'nbi:op-rating':self.ways[id]['op-rating'],
+                                'nbi:op-method-code':self.ways[id]['op-method-code'],
+                                'nbi:deck-rating':self.ways[id]['deck-rating'],
+                                'nbi:inv-rating':self.ways[id]['inv-rating'],
+                                }
+            orig_tags = dict(w.tags)
+            all_tags = orig_tags | new_tags     
+            new = w.replace(tags=all_tags, version=w.version+1)
+            self.writer.add_way(new)
+        else:
+            self.writer.add_way(w)
+    
+    def node(self, n):
+        self.writer.add_node(n)
+
+    def relation(self, r):
+        self.writer.add_relation(r)
+
+    def close(self):
+        if self.debug:
+            self.log.close()
+
+### Use this for the Overpass Querying. It will remove redundant tag checking.
+class OSMNBIMergerOP(osmium.SimpleHandler):
+    def __init__(self, writer, ways, debug=False) -> None:
+        super().__init__()
+        self.writer = writer
+        self.ways = ways
+        self.debug = debug # If True, OSM and matching values will be logged for each entry.
+        if self.debug:
+            self.log = open('out/osm_log', 'w')
+            print(list(self.ways.keys()))
+
+    def way(self, w):
+        id = str(w.id)
+        if id in list(self.ways.keys()):
+            if self.debug: print("Match found!")
             new_tags = {
                                 'nbi:id':str(self.ways[id]['id-state']+","+self.ways[id]['id-no']+","+self.ways[id]['id-owner']),
                                 'nbi:super-cond':self.ways[id]['super-cond'],

@@ -10,17 +10,20 @@ class nbiparser:
         for ele in self.myList:
             final_list.append({
                 "id-state":ele["1 - State Code"],
+                "carried-by":ele["7 - Facility Carried By Structure"].strip(),
                 "id-no":ele["8 - Structure Number"].strip(),
-                "id-owner":ele["22 - Owner Agency"].strip("'"),
                 "lat":ele["16 - Latitude (decimal)"],
                 "lon":ele["17 - Longitude (decimal)"],
-                "deck-rating":ele["58 - Deck Condition Rating"].strip("'"),
-                "super-cond":ele["59 - Superstructure Condition Rating"].strip("'"),
-                "sub-cond":ele["60 - Substructure Condition Rating"].strip("'"),
-                "culvert-rating":ele["62 - Culverts Condition Rating"].strip("'"),
-                "op-method-code":ele["63 - Operating Rating Method Code"].strip("'"),
+                "id-owner":ele["22 - Owner Agency"].strip(),
+                "yr-built":ele["27 - Year Built"].strip(),
+                "deck-rating":ele["58 - Deck Condition Rating"].strip(),
+                "super-cond":ele["59 - Superstructure Condition Rating"].strip(),
+                "sub-cond":ele["60 - Substructure Condition Rating"].strip(),
+                "culvert-rating":ele["62 - Culverts Condition Rating"].strip(),
+                "op-method-code":ele["63 - Operating Rating Method Code"].strip(),
                 "op-rating":ele["64 - Operating Rating (US tons)"],
                 "inv-rating":ele["66 - Inventory Rating (US tons)"],
+                "insp-freq":ele["91 - Designated Inspection Frequency"],
                 })
         return final_list
         
