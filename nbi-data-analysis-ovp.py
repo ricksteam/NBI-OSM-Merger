@@ -1,23 +1,15 @@
-import osmium
-from osm_handlers import OSMNBIMergerOP
-from util import nbiparser
+import csv
 import overpy
+from util import nbiparser
 from datetime import datetime
 from tqdm import tqdm
-import pandas as pd
+from osm_handlers import OSMNBIAnalyzer
 
-# If true, NBI info will be logged.
-DEBUG = False
-
-# Prep Overpass API
+# Prep Nominatim API
 ovp = overpy.Overpass(url="http://52.201.224.66:12345/api/interpreter")
 
 # We will write to a tags<TIME>.osm file
 time = str(datetime.timestamp(datetime.now()))
-
-if DEBUG: 
-    # Open file for debug log
-    log_file = open(f"out/rg-log-{time}.txt", "w")
 
 # parse nbi data
 nbi_file = "in/NE_NBI_FULL.csv"
@@ -29,12 +21,12 @@ relations = {}
 count = 0
 print("Querying OSM data per bridge using Overpass...")
 for bridge in tqdm(nbi_dat):
+    # Add match info
+    bridge.update({"osm-match":"False"})
+    bridge.update({"osm-match-id": "None"})
+
     # Drop culvert bridges for now. 
     if bridge['culvert-rating'] != "N":
-        if DEBUG: # DEBUG LOG
-            count += 1
-            log_file.write(f"{count}\tculvert\n")
-            # END DEBUG
         continue
 
     # Make the query for Overpass
@@ -51,13 +43,6 @@ for bridge in tqdm(nbi_dat):
 
         f"out;"
         )
-    
-    if DEBUG: # DEBUG LOG
-        count += 1
-        for way in response.ways:
-            print("Name: %s" % way.tags.get("name"))
-            print("  Highway: %s" % way.tags.get("highway"))
-            print("  Bridge: %s" % way.tags.get("bridge"))
 
     way_ids=[]
     # TODO: Determine what ways in the query should have the NBI data applied to it.
@@ -74,22 +59,25 @@ for bridge in tqdm(nbi_dat):
             # Key: OSM_ID, Value: NBI_ID
             # relations.update({str(id): bridge})
     
-    if DEBUG: print("Relations found: " + str(len(relations)))
-
-if DEBUG:
-    # Close and save the log file
-    log_file.close()
-
-# Use the OSM parser to write new OSM data to a file.
 
 # Create the PBF Handler and apply the desired OSM data for tag editing.
-extension = 'pbf'
-osm_writer = osmium.SimpleWriter(f'out/merge{time}.{extension}')
-file_writer = OSMNBIMergerOP(osm_writer, relations)
+file_writer = OSMNBIAnalyzer(relations, nbi_dat[0].keys())
 
 print("Writing NBI tags to OSM...")
 file_writer.apply_file("in/nebraska-latest.osm.pbf")
 
-# Close OSM writer and finish up!
-file_writer.close()
+
+    
+# writing to csv file 
+with open("out/NBI-Analysis-ovp.csv", 'w', newline='') as csvfile: 
+    # creating a csv writer object 
+    csvwriter = csv.writer(csvfile) 
+        
+    # writing the fields 
+    csvwriter.writerow(nbi_dat[0].keys()) 
+    
+    for bridge in nbi_dat:
+        # writing the data rows 
+        csvwriter.writerow(list(bridge.values()))
+
 print("Done!")

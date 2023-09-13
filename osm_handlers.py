@@ -10,8 +10,8 @@ class OSMBridgeCounter(osmium.SimpleHandler):
     def way(self, w):
         if w.tags.get('bridge') == 'yes':
             self.total += 1
-            if w.tags.get('highway') == 'footway':
-                self.footway += 1
+            # if w.tags.get('highway') == 'footway':
+            #     self.footway += 1
 
 class OSMParser(osmium.SimpleHandler):
     def __init__(self) -> None:
@@ -95,6 +95,7 @@ class OSMNBIMergerNominatim(osmium.SimpleHandler):
         if w.tags.get('highway') != 'footway' \
             and id in list(self.ways.keys()):
             # print(id)
+            if self.debug: print("Match found!")
             new_tags = {
                                 'nbi:id':str(self.ways[id]['id-state']+","+self.ways[id]['id-no']+","+self.ways[id]['id-owner']),
                                 'nbi:super-cond':self.ways[id]['super-cond'],
@@ -146,7 +147,7 @@ class OSMNBIMergerOP(osmium.SimpleHandler):
                                 'nbi:inv-rating':self.ways[id]['inv-rating'],
                                 }
             orig_tags = dict(w.tags)
-            all_tags = orig_tags | new_tags     
+            all_tags = orig_tags | new_tags
             new = w.replace(tags=all_tags, version=w.version+1)
             self.writer.add_way(new)
         else:
@@ -158,6 +159,32 @@ class OSMNBIMergerOP(osmium.SimpleHandler):
     def relation(self, r):
         self.writer.add_relation(r)
 
+    def close(self):
+        if self.debug:
+            self.log.close()
+
+import csv
+class OSMNBIAnalyzer(osmium.SimpleHandler):
+    def __init__(self, ways, keys) -> None:
+        super().__init__()
+        self.ways = ways
+        self.csvfile = open("out/nbi-analysis.csv", 'w') 
+
+        # creating a csv writer object 
+        self.csvwriter = csv.writer(self.csvfile) 
+        self.csvwriter.writerow(keys) 
+    
+    
+    def is_bridge(self, tags):
+        return tags.get('bridge') == 'yes' and tags.get('highway') != 'footway'
+
+    def way(self, w):
+        id = str(w.id)
+        if self.is_bridge(w.tags) and id in list(self.ways.keys()):
+            print("Match found!")
+            self.ways[id].update({"osm-match": "True"})
+            self.ways[id].update({"osm-match-id": w.id})
+        
     def close(self):
         if self.debug:
             self.log.close()
