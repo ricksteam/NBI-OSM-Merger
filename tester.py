@@ -1,5 +1,11 @@
 from osm_handlers import OSMBridgeCounter
-from util import nbiparser
+from util import nbiparser, CoordinateCalculator
+
+from math import *
+origin = (40.02285, -95.36835)
+distance = 1
+results = CoordinateCalculator.get_bounding_box(origin, distance)
+print(results)
 
 # RUN __main__
 osm = OSMBridgeCounter()

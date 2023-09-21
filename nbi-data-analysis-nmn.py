@@ -3,7 +3,7 @@ import osmium
 from util import nbiparser, nominatim
 from datetime import datetime
 from tqdm import tqdm
-from osm_handlers import OSMNBIAnalyzerNom
+from osm_handlers import OSMNBIAnalyzer
 
 # Prep Nominatim API
 nom = nominatim("http://52.201.224.66:8080")
@@ -34,7 +34,7 @@ for bridge in tqdm(nbi_dat):
     ways.update({str(response['osm_id']): bridge})
 
 # Create the PBF Handler and apply the desired OSM data for tag editing.
-file_writer = OSMNBIAnalyzerNom(ways, nbi_dat[0].keys())
+file_writer = OSMNBIAnalyzer(ways, nbi_dat[0].keys())
 
 print("Writing NBI tags to OSM...")
 file_writer.apply_file("in/nebraska-latest.osm.pbf")

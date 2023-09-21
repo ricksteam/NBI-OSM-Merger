@@ -135,6 +135,7 @@ class OSMNBIMergerOP(osmium.SimpleHandler):
 
     def way(self, w):
         id = str(w.id)
+        # for self.ways - Key: OSM_ID, Value: NBI_ID
         if id in list(self.ways.keys()):
             if self.debug: print("Match found!")
             new_tags = {

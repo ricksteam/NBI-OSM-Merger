@@ -1,10 +1,9 @@
 import osmium
 from osm_handlers import OSMNBIMergerOP
-from util import nbiparser
+from util import nbiparser, CoordinateCalculator
 import overpy
 from datetime import datetime
 from tqdm import tqdm
-import pandas as pd
 
 # If true, NBI info will be logged.
 DEBUG = False
@@ -38,17 +37,15 @@ for bridge in tqdm(nbi_dat):
         continue
 
     # Make the query for Overpass
-    # TODO: It currently uses a static bounding box. This should be changed to be dynamic.
-    # TODO: Make it more of a box. Latitude and longitude are not quite the same distance
-    lat = float(bridge['lat'])
-    lon = float(bridge['lon'])
-    half_lat = 0.002
-    half_lon = 0.002
-    # print (f"nwr({max(-90.0, lat-half_lat)}, {max(-180.0, lon-half_lon)}, {min(90.0, lat+half_lat)}, {min(180.0, lon+half_lon)});\n")
+    pt_lat = float(bridge['lat'])
+    pt_lon = float(bridge['lon'])
+    # Bounding box size in sq km
+    box_size = 0.8
+    tl, br = CoordinateCalculator.get_bounding_box((pt_lat, pt_lon), box_size/2)
+    # print(f"nwr({br[0]}, {tl[1]}, {tl[0]}, {br[1]});")
     response = ovp.query(
-        # Make the bounding box size non-static.
-        f"nwr({max(-90.0, lat-half_lat)}, {max(-180.0, lon-half_lon)}, {min(90.0, lat+half_lat)}, {min(180.0, lon+half_lon)});"
-
+        # f"nwr(south, west, north, east);"
+        f"nwr({br[0]}, {tl[1]}, {tl[0]}, {br[1]});"
         f"out;"
         )
     
@@ -63,16 +60,13 @@ for bridge in tqdm(nbi_dat):
     # TODO: Determine what ways in the query should have the NBI data applied to it.
     for way in response.ways:
         # In Overpy, tags are stored in a basic dictionary.
-        if way.tags.get("bridge") == "yes" and way.tags.get("highway") != "footway" and way.tags.get("highway") != "cycleway":
+        if way.tags.get("bridge") == "yes": #and way.tags.get("highway") != "footway" and way.tags.get("highway") != "cycleway":
+            # An OSM way can have AT MOST one NBI bridge 
+            # Multiple OSM ways may have the same NBI data 
+            # In other words, one NBI bridge may be associated with multiple OSM ways
             # Key: OSM_ID, Value: NBI_ID
             relations.update({str(way.id): bridge})
             # way_ids.append(way.id)
-
-    # An OSM way can have AT MOST one NBI bridge 
-    # Multiple OSM ways may have the same NBI data 
-    # for id in way_ids:
-            # Key: OSM_ID, Value: NBI_ID
-            # relations.update({str(id): bridge})
     
     if DEBUG: print("Relations found: " + str(len(relations)))
 

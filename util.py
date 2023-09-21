@@ -53,3 +53,40 @@ class nominatim:
 #             'lon':"-96.0524",},
 #             'reverse')
 # print(response)
+
+
+from math import *
+class CoordinateCalculator:
+    # mean radius = 6,371km
+    earth_radius = 6371.137
+    # Angle to top-left is 315 degrees
+    tl_angle = radians(315)
+    # Angle to bottom right is 135 degrees
+    br_angle = radians(135)
+
+    @classmethod
+    def get_bounding_box(c, origin: tuple, distance: float):
+        tl_lat, tl_lon = c.calc_dest(origin, c.tl_angle, distance)
+        br_lat, br_lon = c.calc_dest(origin, c.br_angle, distance)
+
+        return((tl_lat,tl_lon) , (br_lat,br_lon))
+
+    @classmethod
+    def calc_dest(c, origin: tuple, bearing: float, distance: float):
+        # from: https://stackoverflow.com/questions/7222382/get-lat-long-given-current-point-distance-and-bearing
+        # and: https://math.stackexchange.com/questions/72294/how-can-i-get-a-square-starting-with-a-latitude-and-longitude-point
+        # and: http://www.movable-type.co.uk/scripts/latlong.html
+        lat1 = radians(origin[0])
+        lon1 = radians(origin[1])
+        dR = distance/c.earth_radius
+
+        # lat2 = asin(sin(lat1)*cos(d/R) + cos(lat1)*sin(d/R)*cos(θ))
+        lat2 = asin(sin(lat1)*cos(dR) + cos(lat1)*sin(dR)*cos(bearing))
+        # lon2 = lon1 + atan2(sin(θ)*sin(d/R)*cos(lat1), cos(d/R)−sin(lat1)*sin(lat2))
+        lon2 = lon1 + atan2(sin(bearing)*sin(dR)*cos(lat1), cos(dR)-sin(lat1)*sin(lat2))
+        # θ is the bearing (in radians, clockwise from north); 
+        # d/R is the angular distance (in radians), 
+        # where d is the distance travelled and R is the earth’s radius
+
+        return (degrees(lat2), degrees(lon2))
+            

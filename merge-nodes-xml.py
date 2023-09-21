@@ -29,7 +29,7 @@ root = tree.getroot()
 
 for i, bridge in enumerate(nbi_dat):
     # Add the bridge data in a new NBI node.
-    # This functions fine, but we mey need to do id validation for larger sets.
+    # This functions fine for now, but we will need to do id validation for larger sets.
     addNBInode(root, bridge, i+1)
 
 
