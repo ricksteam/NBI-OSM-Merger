@@ -7,8 +7,13 @@ from tqdm import tqdm
 # If true, NBI info will be logged.
 DEBUG = False
 
+from dotenv import load_dotenv
+import os
+load_dotenv()
+NMN_ENDPOINT = os.environ.get('NMN_ENDPOINT')
+
 # Prep Nominatim API
-nom = nominatim("http://52.201.224.66:8080")
+nom = nominatim(NMN_ENDPOINT)
 
 # We will write to a tags<TIME>.osm file
 time = str(datetime.timestamp(datetime.now()))
@@ -18,7 +23,7 @@ if DEBUG:
     log_file = open(f"out/rg-log-{time}.txt", "w")
 
 # parse nbi data
-nbi_file = "in/NE_NBI_DATA.csv"
+nbi_file = "in/NE_NBI_FULL.csv"
 c1 =  nbiparser(nbi_file)
 nbi_dat =  c1.modified_data()
 

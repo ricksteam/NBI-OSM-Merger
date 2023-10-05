@@ -47,7 +47,7 @@ class nominatim:
         return response.json()
 
 # Example usage
-# n = nominatim("http://52.201.224.66:8080")
+# n = nominatim("...")
 # response = n.request({'format':'jsonv2',
 #             'lat':"41.3154",
 #             'lon':"-96.0524",},
@@ -65,9 +65,11 @@ class CoordinateCalculator:
     br_angle = radians(135)
 
     @classmethod
-    def get_bounding_box(c, origin: tuple, distance: float):
-        tl_lat, tl_lon = c.calc_dest(origin, c.tl_angle, distance)
-        br_lat, br_lon = c.calc_dest(origin, c.br_angle, distance)
+    def get_bounding_box(c, origin: tuple, side_length: float):
+        # Get distance of half the diagonal of the square
+        half_distance = (side_length * sqrt(2)) / 2
+        tl_lat, tl_lon = c.calc_dest(origin, c.tl_angle, half_distance)
+        br_lat, br_lon = c.calc_dest(origin, c.br_angle, half_distance)
 
         return((tl_lat,tl_lon) , (br_lat,br_lon))
 

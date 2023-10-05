@@ -1,12 +1,16 @@
 import csv
-import osmium
 from util import nbiparser, nominatim
 from datetime import datetime
 from tqdm import tqdm
 from osm_handlers import OSMNBIAnalyzer
 
+from dotenv import load_dotenv
+import os
+load_dotenv()
+NMN_ENDPOINT = os.environ.get('NMN_ENDPOINT')
+
 # Prep Nominatim API
-nom = nominatim("http://52.201.224.66:8080")
+nom = nominatim(NMN_ENDPOINT)
 
 # We will write to a tags<TIME>.osm file
 time = str(datetime.timestamp(datetime.now()))

@@ -1,12 +1,17 @@
 import csv
 import overpy
-from util import nbiparser
+from util import CoordinateCalculator, nbiparser
 from datetime import datetime
 from tqdm import tqdm
 from osm_handlers import OSMNBIAnalyzer
 
+from dotenv import load_dotenv
+import os
+load_dotenv()
+OVP_ENDPOINT = os.environ.get('OVP_ENDPOINT')
+
 # Prep Nominatim API
-ovp = overpy.Overpass(url="http://52.201.224.66:12345/api/interpreter")
+ovp = overpy.Overpass(url=f"{OVP_ENDPOINT}/interpreter")
 
 # We will write to a tags<TIME>.osm file
 time = str(datetime.timestamp(datetime.now()))
@@ -30,17 +35,15 @@ for bridge in tqdm(nbi_dat):
         continue
 
     # Make the query for Overpass
-    # TODO: It currently uses a static bounding box. This should be changed to be dynamic.
-    # TODO: Make it more of a box. Latitude and longitude are not quite the same distance
     lat = float(bridge['lat'])
     lon = float(bridge['lon'])
-    half_lat = 0.002
-    half_lon = 0.002
-    # print (f"nwr({max(-90.0, lat-half_lat)}, {max(-180.0, lon-half_lon)}, {min(90.0, lat+half_lat)}, {min(180.0, lon+half_lon)});\n")
+    # Bounding box size in km
+    side_length = 0.25
+    tl, br = CoordinateCalculator.get_bounding_box((lat, lon), side_length)
+    # print(f"nwr({br[0]}, {tl[1]}, {tl[0]}, {br[1]});")
     response = ovp.query(
-        # Make the bounding box size non-static.
-        f"nwr({max(-90.0, lat-half_lat)}, {max(-180.0, lon-half_lon)}, {min(90.0, lat+half_lat)}, {min(180.0, lon+half_lon)});"
-
+        # f"nwr(south, west, north, east);"
+        f"nw({br[0]}, {tl[1]}, {tl[0]}, {br[1]});"
         f"out;"
         )
 

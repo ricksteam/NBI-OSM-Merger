@@ -8,8 +8,13 @@ from tqdm import tqdm
 # If true, NBI info will be logged.
 DEBUG = False
 
+from dotenv import load_dotenv
+import os
+load_dotenv()
+OVP_ENDPOINT = os.environ.get('OVP_ENDPOINT')
+
 # Prep Overpass API
-ovp = overpy.Overpass(url="http://52.201.224.66:12345/api/interpreter")
+ovp = overpy.Overpass(url=f"{OVP_ENDPOINT}/interpreter")
 
 # We will write to a tags<TIME>.osm file
 time = str(datetime.timestamp(datetime.now()))
@@ -39,13 +44,13 @@ for bridge in tqdm(nbi_dat):
     # Make the query for Overpass
     pt_lat = float(bridge['lat'])
     pt_lon = float(bridge['lon'])
-    # Bounding box size in sq km
-    box_size = 0.8
-    tl, br = CoordinateCalculator.get_bounding_box((pt_lat, pt_lon), box_size/2)
+    # Bounding box size in km
+    side_length = 0.25
+    tl, br = CoordinateCalculator.get_bounding_box((pt_lat, pt_lon), side_length)
     # print(f"nwr({br[0]}, {tl[1]}, {tl[0]}, {br[1]});")
     response = ovp.query(
         # f"nwr(south, west, north, east);"
-        f"nwr({br[0]}, {tl[1]}, {tl[0]}, {br[1]});"
+        f"nw({br[0]}, {tl[1]}, {tl[0]}, {br[1]});"
         f"out;"
         )
     
