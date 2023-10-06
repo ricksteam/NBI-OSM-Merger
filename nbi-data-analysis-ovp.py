@@ -61,7 +61,9 @@ for bridge in tqdm(nbi_dat):
     # for id in way_ids:
             # Key: OSM_ID, Value: NBI_ID
             # relations.update({str(id): bridge})
-    
+
+# TODO: Add visualizer code in here so we can snapshot bad data points
+# It looks like we can use OSMNX or non-OX version. Benchmark to see which is faster and implement.    
 
 # Create the PBF Handler and apply the desired OSM data for tag editing.
 file_writer = OSMNBIAnalyzer(relations, nbi_dat[0].keys())
