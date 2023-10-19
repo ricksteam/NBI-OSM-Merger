@@ -1,9 +1,11 @@
 import csv
-import overpy
-from util import CoordinateCalculator, nbiparser
+import overpass, overpy
+import geopandas as gpd
+from util import geo, nbiparser
 from datetime import datetime
 from tqdm import tqdm
 from osm_handlers import OSMNBIAnalyzer
+from visualiser_folium import folyzer
 
 from dotenv import load_dotenv
 import os
@@ -11,7 +13,8 @@ load_dotenv()
 OVP_ENDPOINT = os.environ.get('OVP_ENDPOINT')
 
 # Prep Nominatim API
-ovp = overpy.Overpass(url=f"{OVP_ENDPOINT}/interpreter")
+ovpy = overpy.Overpass(url=f"{OVP_ENDPOINT}/interpreter")
+# ovps = overpass.API(endpoint=f"{OVP_ENDPOINT}/interpreter")
 
 # We will write to a tags<TIME>.osm file
 time = str(datetime.timestamp(datetime.now()))
@@ -37,24 +40,32 @@ for bridge in tqdm(nbi_dat):
     # Make the query for Overpass
     lat = float(bridge['lat'])
     lon = float(bridge['lon'])
-    # Bounding box size in km
-    side_length = 0.25
-    tl, br = CoordinateCalculator.get_bounding_box((lat, lon), side_length)
-    # print(f"nwr({br[0]}, {tl[1]}, {tl[0]}, {br[1]});")
-    response = ovp.query(
-        # f"nwr(south, west, north, east);"
-        f"nw({br[0]}, {tl[1]}, {tl[0]}, {br[1]});"
-        f"out;"
-        )
 
-    way_ids=[]
+    # Bounding box size in meters
+    size = 100
+    north, south, east, west = geo.bbox_from_point((lat, lon), size)
+    
+    # Create the Overpass Query. Get Nodes and Ways within the bounding box
+    query = f"nw({south}, {west}, {north}, {east}); out;"
+    response = ovpy.query(query)
+
+    # Continue if the repsonse is empty
+    if len(response.ways) == 0: continue
+
+    bridge_ways=[]
     # TODO: Determine what ways in the query should have the NBI data applied to it.
     for way in response.ways:
         # In Overpy, tags are stored in a basic dictionary.
         if way.tags.get("bridge") == "yes" and way.tags.get("highway") != "footway" and way.tags.get("highway") != "cycleway":
             # Key: OSM_ID, Value: NBI_ID
             relations.update({str(way.id): bridge})
-            # way_ids.append(way.id)
+    
+            bridge_ways.append(way)
+
+    # Currently, If we find any number of bridges besides 1, something wonky is going on.
+    # 0 Bridges means OSM data is bad. 2+ bridges means we need to employ good heuristics.
+    if len(bridge_ways) != 1:
+        folyzer.visualize_point(bridge, bridge_ways)
 
     # An OSM way can have AT MOST one NBI bridge 
     # Multiple OSM ways may have the same NBI data 
@@ -70,7 +81,6 @@ file_writer = OSMNBIAnalyzer(relations, nbi_dat[0].keys())
 
 print("Writing NBI tags to OSM...")
 file_writer.apply_file("in/nebraska-latest.osm.pbf")
-
 
     
 # writing to csv file 

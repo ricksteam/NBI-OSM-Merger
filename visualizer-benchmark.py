@@ -1,15 +1,11 @@
 import time
 from statistics import mean
 
-start_time = time.time_ns()
-
 from visualiser_ox import VisualizerOX as vox
-
-after_ox_import = time.time_ns()
-
 from visualiser import Visualizer as v
 
-after_non_import = time.time_ns()
+print("Start!")
+start_time = time.time_ns()
 
 # It will likely be important to see specific points compared, rather than an average.
 points = [(41.3209, -96.0449),(41.3236, -96.0449),(41.3154, -96.0524),\
@@ -40,9 +36,6 @@ for point in points:
 post_nonx_run = time.time_ns()
 
 # ======= Benchmark Analysis =========
-print(f'Import OX Visualizer time: \t{(after_ox_import - start_time)/(10**9)}')
-print(f'Import No-OX Visualizer time: \t{(after_non_import - after_ox_import)/(10**9)}')
-print()
 print(f'OX Visualizer total time: \t{(post_osmnx_run - pre_osmnx_run)/(10**9)}')
 print(f'OX Visualizer times: \t\t{[t/(10**9) for t in osmnx_times]}')
 print(f'Average OX Visualizer time: \t{(mean(osmnx_times))/(10**9)}')

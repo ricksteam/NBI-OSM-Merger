@@ -1,12 +1,13 @@
 import overpass
 import geopandas as gpd
 import matplotlib.pyplot as plt
-from util import CoordinateCalculator
+from util import geo, mapbox_static
 
 from dotenv import load_dotenv
 import os
 load_dotenv()
 OVP_ENDPOINT = os.environ.get('OVP_ENDPOINT')
+MAPBOX_KEY = os.environ.get('MAPBOX_KEY')
 
 class Visualizer:
     ovp = overpass.API(endpoint=f"{OVP_ENDPOINT}/interpreter")
@@ -18,12 +19,13 @@ class Visualizer:
         pt_lat = point[0]
         pt_lon = point[1]
 
-        # Bounding box size in km
-        side_length = 0.2
-        tl, br = CoordinateCalculator.get_bounding_box((pt_lat, pt_lon), side_length)
+        # Bounding box size in m
+        side_length = 200
+        bbox = geo.bbox_from_point((pt_lat, pt_lon), side_length)
+        north, south, east, west = bbox
 
         # Relations break our queries for some reason and are not needed. Just use nodes and ways.
-        query = f"nw({br[0]}, {tl[1]}, {tl[0]}, {br[1]}); out;"
+        query = f"nw({south}, {west}, {north}, {east}); out;"
 
         # Query the data and put it into a GeoDataFrame
         response = c.ovp.get(query, verbosity="geom")
@@ -34,7 +36,10 @@ class Visualizer:
         # print(gdf.tail(10))
 
         # set the coordinate relation system
-        gdf.set_crs("EPSG:4326")
+        # gdf.set_crs("EPSG:4326")
+
+        # img = mapbox_static.get_img_from_bbox(MAPBOX_KEY, bbox,)
+        # plt.imshow(img)
 
         # create the initial map
         ax = gdf.plot(markersize=0)
@@ -53,8 +58,8 @@ class Visualizer:
                 # print("BRIDGE!!!") 
 
         # Limit the map to the query's bounding box
-        plt.xlim(tl[1], br[1])
-        plt.ylim(br[0], tl[0])
+        plt.xlim(west, east)
+        plt.ylim(south, north)
 
         # plot the NBI point, origin
         ax.plot(point[1], point[0], 'y*', markersize=10)

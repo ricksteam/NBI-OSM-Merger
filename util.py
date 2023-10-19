@@ -56,39 +56,56 @@ class nominatim:
 
 
 from math import *
-class CoordinateCalculator:
-    # mean radius = 6,371km
-    earth_radius = 6371.137
-    # Angle to top-left is 315 degrees
-    tl_angle = radians(315)
-    # Angle to bottom right is 135 degrees
-    br_angle = radians(135)
+class geo:
 
-    @classmethod
-    def get_bounding_box(c, origin: tuple, side_length: float):
-        # Get distance of half the diagonal of the square
-        half_distance = (side_length * sqrt(2)) / 2
-        tl_lat, tl_lon = c.calc_dest(origin, c.tl_angle, half_distance)
-        br_lat, br_lon = c.calc_dest(origin, c.br_angle, half_distance)
+    def bbox_from_point(point:tuple, dist:float=1000) -> tuple:
+        """
+        Create a bounding box from a (lat, lon) center point.
 
-        return((tl_lat,tl_lon) , (br_lat,br_lon))
+        Create a bounding box some distance in each direction (north, south, east,
+        and west) from the center point and optionally project it.
 
-    @classmethod
-    def calc_dest(c, origin: tuple, bearing: float, distance: float):
-        # from: https://stackoverflow.com/questions/7222382/get-lat-long-given-current-point-distance-and-bearing
-        # and: https://math.stackexchange.com/questions/72294/how-can-i-get-a-square-starting-with-a-latitude-and-longitude-point
-        # and: http://www.movable-type.co.uk/scripts/latlong.html
-        lat1 = radians(origin[0])
-        lon1 = radians(origin[1])
-        dR = distance/c.earth_radius
+        Code from OSMNX Source: https://github.com/gboeing/osmnx/blob/main/osmnx/utils_geo.py#L427 
+        Parameters
+        ----------
+        point : tuple
+            the (lat, lon) center point to create the bounding box around
+        dist : int
+            bounding box distance in meters from the center point
 
-        # lat2 = asin(sin(lat1)*cos(d/R) + cos(lat1)*sin(d/R)*cos(θ))
-        lat2 = asin(sin(lat1)*cos(dR) + cos(lat1)*sin(dR)*cos(bearing))
-        # lon2 = lon1 + atan2(sin(θ)*sin(d/R)*cos(lat1), cos(d/R)−sin(lat1)*sin(lat2))
-        lon2 = lon1 + atan2(sin(bearing)*sin(dR)*cos(lat1), cos(dR)-sin(lat1)*sin(lat2))
-        # θ is the bearing (in radians, clockwise from north); 
-        # d/R is the angular distance (in radians), 
-        # where d is the distance travelled and R is the earth’s radius
+        Returns
+        -------
+        tuple
+            (north, south, east, west)
+        """
+        earth_radius = 6_371_009  # meters
+        lat, lon = point
 
-        return (degrees(lat2), degrees(lon2))
-            
+        delta_lat = (dist / earth_radius) * (180 / pi)
+        delta_lon = (dist / earth_radius) * (180 / pi) / cos(lat * pi / 180)
+        north = lat + delta_lat
+        south = lat - delta_lat
+        east = lon + delta_lon
+        west = lon - delta_lon
+
+        # otherwise
+        return north, south, east, west
+    
+    def centroid(polyline:list):
+        t = (sum([item[0] for item in polyline])/len(polyline), sum([item[1] for item in polyline])/len(polyline))
+        return t
+    
+from PIL import Image
+import io 
+class mapbox_static:
+    def get_img_from_bbox(key:str, bbox:tuple, user:str='mapbox', style:str='satellite-streets-v12', size:tuple=(400, 400)) -> Image.Image:
+        north, south, east, west = bbox
+
+        call = f'https://api.mapbox.com/styles/v1/{user}/{style}/static/[{west},{south},{east},{north}]/{size[0]}x{size[1]}?access_token={key}'
+
+        response = requests.get(call)
+
+        stream = io.BytesIO(response.content)
+        img = Image.open(stream)
+        return img
+
