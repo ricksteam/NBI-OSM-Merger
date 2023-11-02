@@ -1,7 +1,7 @@
 import csv
 import overpass, overpy
 import geopandas as gpd
-from util import geo, nbiparser
+from util import geo, nbiparser, heuristics
 from datetime import datetime
 from tqdm import tqdm
 from osm_handlers import OSMNBIAnalyzer
@@ -28,7 +28,7 @@ relations = {}
 
 count = 0
 print("Querying OSM data per bridge using Overpass...")
-for bridge in tqdm(nbi_dat):
+for bridge in nbi_dat:#tqdm(nbi_dat):
     # Add match info
     bridge.update({"osm-match":"False"})
     bridge.update({"osm-match-id": "None"})
@@ -52,26 +52,33 @@ for bridge in tqdm(nbi_dat):
     # Continue if the repsonse is empty
     if len(response.ways) == 0: continue
 
-    bridge_ways=[]
+    osm_scores={}
     # TODO: Determine what ways in the query should have the NBI data applied to it.
     for way in response.ways:
+        
         # In Overpy, tags are stored in a basic dictionary.
         if way.tags.get("bridge") == "yes" and way.tags.get("highway") != "footway" and way.tags.get("highway") != "cycleway":
-            # Key: OSM_ID, Value: NBI_ID
+        # Apply bridge heuristics with the if statement here.
+            nbi_point = geo.make_point(bridge['carried-by'], (bridge['lat'], bridge['lon']))
+            osm_point = geo.make_point(way.tags.get("name"), geo.centroid(geo.make_polyline(way)))
+            # score = heuristics.calculate_score_simple(nbi_point, osm_point)
+            dscore = heuristics.simple_distance(nbi_point['coord'], osm_point['coord'], x=20)
+            pscore = heuristics.simple_pattern(nbi_point['name'], osm_point['name'])
+
+        # An OSM way can have AT MOST one NBI bridge 
+        # Multiple OSM ways may have the same NBI data 
+        # for id in way_ids:
+            # Key: OSM_ID, Value: NBI_Data
             relations.update({str(way.id): bridge})
-    
-            bridge_ways.append(way)
+            osm_scores.update({way: (dscore, pscore)})
 
     # Currently, If we find any number of bridges besides 1, something wonky is going on.
     # 0 Bridges means OSM data is bad. 2+ bridges means we need to employ good heuristics.
-    if len(bridge_ways) != 1:
-        folyzer.visualize_point(bridge, bridge_ways)
+    # if len(bridge_ways) != 1:
+    folyzer.visualize_point(bridge, osm_scores)
 
-    # An OSM way can have AT MOST one NBI bridge 
-    # Multiple OSM ways may have the same NBI data 
-    # for id in way_ids:
-            # Key: OSM_ID, Value: NBI_ID
-            # relations.update({str(id): bridge})
+    count += 1
+    # if count == 40: exit(0)
 
 # TODO: Add visualizer code in here so we can snapshot bad data points
 # It looks like we can use OSMNX or non-OX version. Benchmark to see which is faster and implement.    
