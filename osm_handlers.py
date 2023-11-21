@@ -183,8 +183,9 @@ class OSMNBIAnalyzer(osmium.SimpleHandler):
         id = str(w.id)
         if self.is_bridge(w.tags) and id in list(self.ways.keys()):
             print("Match found!")
-            self.ways[id].update({"osm-match": "True"})
-            self.ways[id].update({"osm-match-id": w.id})
+            self.ways[id][0].update({"osm-match": "True"})
+            self.ways[id][0].update({"osm-match-id": w.id})
+            self.ways[id][0].update({"osm-match-inf": "NONE"})
         
     def close(self):
         if self.debug:

@@ -11,7 +11,7 @@ class folyzer:
     label_tiles = 'https://{s}.basemaps.cartocdn.com/light_only_labels/{z}/{x}/{y}{r}.png'
     
     @classmethod
-    def visualize_point(c, nbi_data:dict, osm_scores:dict[Way, tuple]) -> None:
+    def visualize_point(c, nbi_data:dict, osm_data:list[dict]) -> None:
         '''
         Visualizes an NBI point and its related NBI data using a Folium map, saved as an HTML file.
         
@@ -22,10 +22,12 @@ class folyzer:
             This is equivalent to an item in the list returned by util.nbiparser.modified_data()
 
         osm_scores : osm_scores
-            A dictionary containing key-value pairs in the form:
-                key : overpy.Way
-
-                value : (distance-score, pattern-score)
+            A list containing dictionaries in the form:
+                way : the overpy way
+                
+                scores : (distance-score, pattern-score)
+                
+                selected : bool
                 
             Each entry represents a bridge way in OSM and its corresponding scores to the NBI entry
 
@@ -41,19 +43,20 @@ class folyzer:
         folium.TileLayer(tiles=c.label_tiles, attr=c.label_attr, overlay=True, opacity=1).add_to(map)
 
         # Add our ways to the map in the form of PolyLine
-        osm_bridges = osm_scores.keys()
+        # osm_bridges = osm_scores.keys()
         # print(len(osm_bridges))
-        for way in osm_bridges:
-            pline = geo.make_polyline(way)
-            # if str(point) == (40.2524, -95.6907):
-            print(point, pline)
+        for entry in osm_data:
+            pline = geo.make_polyline(entry['way'])
+            # print(point, pline)
+            color = "#00FF00" if entry['selected'] == True else "#FF0000"
+            way : Way = entry['way']
             folium.PolyLine(pline,    
-                            color="#FF0000",
+                            color=color,
                             weight=5,
                             popup=f"""OSM Bridge: w{way.id}  
                             name: {way.tags.get('name')}
-                            dist-score: {'%.3f'%osm_scores[way][0]} 
-                            patn-score: {'%.3f'%osm_scores[way][1]}""",
+                            dist-score: {entry['scores'][0]} 
+                            patn-score: {entry['scores'][1]}""",
                             ).add_to(map)
             
             # folium.Marker(geo.centroid(pline)).add_to(map)
@@ -70,9 +73,9 @@ class folyzer:
         folium.LayerControl().add_to(map)
 
         # Save the map as HTML file
-        if len(osm_bridges) == 0: 
+        if len(osm_data) == 0: 
             map.save(f"out/folium/bad/fol{point}-0.html")
-        elif len(osm_bridges) > 1: 
+        elif len(osm_data) > 1: 
             map.save(f"out/folium/bad/fol{point}-2p.html")
         else:
             map.save(f"out/folium/good/fol{point}.html")

@@ -1,10 +1,8 @@
 import csv
-import overpass, overpy
-import geopandas as gpd
+import overpy
 from util import geo, nbiparser, heuristics
 from datetime import datetime
 from tqdm import tqdm
-from osm_handlers import OSMNBIAnalyzer
 from visualiser_folium import folyzer
 
 from dotenv import load_dotenv
@@ -24,20 +22,19 @@ nbi_file = "in/NE_NBI_FULL.csv"
 c1 =  nbiparser(nbi_file)
 nbi_dat =  c1.modified_data()
 
-relations = {}
-
 count = 0
 print("Querying OSM data per bridge using Overpass...")
-for bridge in nbi_dat:#tqdm(nbi_dat):
+for bridge in tqdm(nbi_dat):
     # Add match info
     bridge.update({"osm-match":"False"})
     bridge.update({"osm-match-id": "None"})
+    bridge.update({"osm-match-dsps": "None"})
 
     # Drop culvert bridges for now. 
     if bridge['culvert-rating'] != "N":
         continue
 
-    # Make the query for Overpass
+    # Get lat and lon values
     lat = float(bridge['lat'])
     lon = float(bridge['lon'])
 
@@ -52,44 +49,57 @@ for bridge in nbi_dat:#tqdm(nbi_dat):
     # Continue if the repsonse is empty
     if len(response.ways) == 0: continue
 
-    osm_scores={}
-    # TODO: Determine what ways in the query should have the NBI data applied to it.
+    way_inf=[]
     for way in response.ways:
-        
         # In Overpy, tags are stored in a basic dictionary.
         if way.tags.get("bridge") == "yes" and way.tags.get("highway") != "footway" and way.tags.get("highway") != "cycleway":
-        # Apply bridge heuristics with the if statement here.
             nbi_point = geo.make_point(bridge['carried-by'], (bridge['lat'], bridge['lon']))
             osm_point = geo.make_point(way.tags.get("name"), geo.centroid(geo.make_polyline(way)))
             # score = heuristics.calculate_score_simple(nbi_point, osm_point)
-            dscore = heuristics.simple_distance(nbi_point['coord'], osm_point['coord'], x=20)
-            pscore = heuristics.simple_pattern(nbi_point['name'], osm_point['name'])
+            dscore = heuristics.simple_distance(nbi_point['coord'], osm_point['coord'], t=20)
+            # pscore = heuristics.simple_pattern(nbi_point['name'], osm_point['name'])
+            pscore = heuristics.sorensen_dice(nbi_point['name'], osm_point['name'])
 
-        # An OSM way can have AT MOST one NBI bridge 
-        # Multiple OSM ways may have the same NBI data 
-        # for id in way_ids:
-            # Key: OSM_ID, Value: NBI_Data
-            relations.update({str(way.id): bridge})
-            osm_scores.update({way: (dscore, pscore)})
+            way_inf.append({'way': way, 'scores': ('%.3f'%dscore, '%.3f'%pscore), 'selected': False})
+            
+            # An OSM way can have AT MOST one NBI bridge 
+            # Multiple OSM ways may have the same NBI data 
 
-    # Currently, If we find any number of bridges besides 1, something wonky is going on.
-    # 0 Bridges means OSM data is bad. 2+ bridges means we need to employ good heuristics.
-    # if len(bridge_ways) != 1:
-    folyzer.visualize_point(bridge, osm_scores)
+    matches = []
+    num_entries = len(way_inf)
+    for entry in way_inf:
+        dscore = float(entry['scores'][0])
+        pscore = float(entry['scores'][1])
+        
+        # Currently, If we find any number of bridges besides 1, something wonky is going on.
+        # 0 Bridges means OSM data is bad. 2+ bridges means we need to employ good heuristics.
+        # These are some magic numbers and conditions. We should find a way to describe them.
+        if num_entries == 1 and dscore >= 0.5:
+            entry['selected'] = True
+            matches.append(entry)
+        elif num_entries == 2 and (dscore > 0.5 and pscore > 0.3):
+            #TODO: For multiple bridges, create a method of checking if this bridge's scores are higher than others.
+            # if true, add the bridge
+            entry['selected'] = True
+            matches.append(entry)
+        elif (dscore > 0.5 and pscore > 0.3) or (pscore == 1) or (dscore >= 0.6): # 3+ bridges
+            entry['selected'] = True
+            matches.append(entry)
+
+    if len(matches) > 0:
+        # Update match info
+        bridge.update({"osm-match":"True"})
+        bridge.update({"osm-match-id": [i['way'].id for i in matches]})
+        bridge.update({"osm-match-dsps": [i['scores'] for i in matches]})
+
+    # visualize the nearby bridges and selected merge bridges
+    folyzer.visualize_point(bridge, way_inf)
 
     count += 1
-    # if count == 40: exit(0)
+    if count == 100: break
 
-# TODO: Add visualizer code in here so we can snapshot bad data points
-# It looks like we can use OSMNX or non-OX version. Benchmark to see which is faster and implement.    
 
-# Create the PBF Handler and apply the desired OSM data for tag editing.
-file_writer = OSMNBIAnalyzer(relations, nbi_dat[0].keys())
-
-print("Writing NBI tags to OSM...")
-file_writer.apply_file("in/nebraska-latest.osm.pbf")
-
-    
+print("Writing info to CSV...")
 # writing to csv file 
 with open("out/NBI-Analysis-ovp.csv", 'w', newline='') as csvfile: 
     # creating a csv writer object 

@@ -249,6 +249,29 @@ class heuristics:
         ratio1 = SequenceMatcher(lambda x: x==' ', strcln1, strcln2).ratio()
         ratio2 = SequenceMatcher(lambda x: x==' ', strcln2, strcln1).ratio()
         return (ratio1 + ratio2) / 2
+
+    def sorensen_dice(str1:str, str2:str) -> float:
+        '''Calculates a simple heuristic using the Sorensen Dice Algorithm. Returns a score in range (0...1].
+        
+        Parameters
+        -----
+        str1 : str
+            A string to compare against str2
+        str2 : str
+            A string to compare against str1
+
+        Returns
+        -----
+        A score as a float from range (0,1].
+        '''
+        if str1 == None or str2 == None: return 0
+        strcln1 = str.lower(str1)
+        strcln2 = str.lower(str2)
+        if strcln1 == strcln2: return 1
+        a = set(strcln1)
+        b = set(strcln2)
+        score = (2*len(a.intersection(b))) / (len(a) + len(b))
+        return score
     
     def simple_distance(coord1:tuple, coord2:tuple, t:float=10) -> float:
         '''Calculates a simple distance between two (x,y) points and returns a score.
