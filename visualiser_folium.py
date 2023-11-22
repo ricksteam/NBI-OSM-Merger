@@ -42,13 +42,17 @@ class folyzer:
         # Add Carto Labels for understandability
         folium.TileLayer(tiles=c.label_tiles, attr=c.label_attr, overlay=True, opacity=1).add_to(map)
 
+        num_matches = 0
+
         # Add our ways to the map in the form of PolyLine
-        # osm_bridges = osm_scores.keys()
-        # print(len(osm_bridges))
         for entry in osm_data:
             pline = geo.make_polyline(entry['way'])
-            # print(point, pline)
-            color = "#00FF00" if entry['selected'] == True else "#FF0000"
+            
+            color = "#FF0000" 
+            if entry['selected'] == True:
+                color = "#00FF00"
+                num_matches += 1
+
             way : Way = entry['way']
             folium.PolyLine(pline,    
                             color=color,
@@ -73,11 +77,7 @@ class folyzer:
         folium.LayerControl().add_to(map)
 
         # Save the map as HTML file
-        if len(osm_data) == 0: 
-            map.save(f"out/folium/bad/fol{point}-0.html")
-        elif len(osm_data) > 1: 
-            map.save(f"out/folium/bad/fol{point}-2p.html")
-        else:
-            map.save(f"out/folium/good/fol{point}.html")
+
+        map.save(f"out/folium/viz/fol{num_matches}-{len(osm_data)}-p{point}.html")
         
         return

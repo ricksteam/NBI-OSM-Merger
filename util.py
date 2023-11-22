@@ -1,4 +1,6 @@
 import csv
+import math
+import numpy as np
 from overpy import Way
 class nbiparser:
     '''A class that helps with parsing data from NBI files in the csv format.'''
@@ -251,7 +253,7 @@ class heuristics:
         return (ratio1 + ratio2) / 2
 
     def sorensen_dice(str1:str, str2:str) -> float:
-        '''Calculates a simple heuristic using the Sorensen Dice Algorithm. Returns a score in range (0...1].
+        '''Calculates a score using the Sorensen Dice Algorithm. Returns a score in range (0...1].
         
         Parameters
         -----
@@ -297,6 +299,51 @@ class heuristics:
         dist = distance.distance(coord1, coord2).meters
         # Use a simple equation to create a score
         score = t/(dist+t)
+        # score = max(0, 1-(dist/x))
+        return score
+    
+    def shortest_distance(polyline:list[list], point:list, t:float=10) -> float:
+        '''Calculates the shortest distance between a point and a polyline and returns a score.
+        A lower score means the points are further apart. A score of 1 means the points are the same.
+        Heavily refers to the anser found here: https://stackoverflow.com/questions/10983872/distance-from-a-point-to-a-polygon.
+    
+        Parameters
+        -------
+        polyline : list[list]
+            A list the describes a polyline in the form of [[x1,y1], [x2,y2], ...].
+        
+        coord2 : tuple
+            A tuple in the form of (latitude, longitude) that describes the coordinates of the point.
+
+        t : float, optional
+            A threshold value to score on. When distance between the two is less than t, 
+            the resulting score > 0.5. Otherwise, the score <= 0.5. Score is in range (0...1]. (Default is 10)
+        
+        Returns
+        -----
+        A score as a float from range (0,1].
+        '''
+        min_dist = None
+
+        vertices = np.array(polyline)
+        x = np.array(point, dtype=np.float64)
+        for i in range(vertices.shape[0]-1):
+            p1 = vertices[i]
+            p2 = vertices[i+1]
+            r = np.dot((np.subtract(p2, p1)), (np.subtract(x, p1)))
+            r /= (np.linalg.norm(np.subtract(p2, p1)) ** 2)
+
+            if r < 0:
+                dist = distance.distance(x, p1).meters
+            elif r > 1:
+                dist = distance.distance(x, p2).meters
+            else:
+                dist = sqrt(abs(distance.distance(x, p1).meters ** 2 - (r * distance.distance(p2, p1).meters) ** 2))
+
+            min_dist = dist if min_dist == None else min(dist,min_dist)
+
+        # Use a simple equation to create a score
+        score = t/(min_dist+t)
         # score = max(0, 1-(dist/x))
         return score
     

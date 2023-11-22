@@ -18,8 +18,8 @@ ovpy = overpy.Overpass(url=f"{OVP_ENDPOINT}/interpreter")
 time = str(datetime.timestamp(datetime.now()))
 
 # parse nbi data
-nbi_file = "in/NE_NBI_FULL.csv"
-c1 =  nbiparser(nbi_file)
+nbi_file = "NBI_HAWAII.csv"
+c1 =  nbiparser(f"in/{nbi_file}")
 nbi_dat =  c1.modified_data()
 
 count = 0
@@ -56,7 +56,8 @@ for bridge in tqdm(nbi_dat):
             nbi_point = geo.make_point(bridge['carried-by'], (bridge['lat'], bridge['lon']))
             osm_point = geo.make_point(way.tags.get("name"), geo.centroid(geo.make_polyline(way)))
             # score = heuristics.calculate_score_simple(nbi_point, osm_point)
-            dscore = heuristics.simple_distance(nbi_point['coord'], osm_point['coord'], t=20)
+            # dscore = heuristics.simple_distance(nbi_point['coord'], osm_point['coord'], t=20)
+            dscore = heuristics.shortest_distance(geo.make_polyline(way), nbi_point['coord'], t=20)
             # pscore = heuristics.simple_pattern(nbi_point['name'], osm_point['name'])
             pscore = heuristics.sorensen_dice(nbi_point['name'], osm_point['name'])
 
@@ -67,24 +68,44 @@ for bridge in tqdm(nbi_dat):
 
     matches = []
     num_entries = len(way_inf)
+    all_avg = [((float(d) + float(p))/2) for d,p in [e['scores'] for e in way_inf]]
     for entry in way_inf:
         dscore = float(entry['scores'][0])
         pscore = float(entry['scores'][1])
-        
+        avg_score = (dscore + pscore) / 2
+
         # Currently, If we find any number of bridges besides 1, something wonky is going on.
         # 0 Bridges means OSM data is bad. 2+ bridges means we need to employ good heuristics.
         # These are some magic numbers and conditions. We should find a way to describe them.
+
+        # 1 bridge
         if num_entries == 1 and dscore >= 0.5:
             entry['selected'] = True
             matches.append(entry)
-        elif num_entries == 2 and (dscore > 0.5 and pscore > 0.3):
-            #TODO: For multiple bridges, create a method of checking if this bridge's scores are higher than others.
-            # if true, add the bridge
+
+        # For 2 bridges
+        elif num_entries == 2 and (dscore > 0.5 and pscore > 0.3): 
             entry['selected'] = True
             matches.append(entry)
-        elif (dscore > 0.5 and pscore > 0.3) or (pscore == 1) or (dscore >= 0.6): # 3+ bridges
+
+        # 3+ bridges
+        elif (dscore > 0.5 and pscore > 0.3) or (pscore == 1): 
             entry['selected'] = True
             matches.append(entry)
+
+        # If other multiple bridge cases fail, and if this entry has the largest average score, consider it a match
+        elif avg_score == max(all_avg):
+            entry['selected'] = True
+            matches.append(entry)
+
+        # If there is another way with the same name, we assume it's a double bridge and match it.
+        # NOTE: This is iffy. It looks like it's matching bridges that aren't ACTUALLY the same.
+        # TODO: Confirm this is unnessecary for double-way bridges
+        # elif entry['way'].tags.get("name") != None and \
+        #         [w['way'].tags.get('name') for w in way_inf].count(entry['way'].tags.get("name")) == 2:
+        #     entry['selected'] = True
+        #     matches.append(entry)
+
 
     if len(matches) > 0:
         # Update match info
@@ -96,20 +117,20 @@ for bridge in tqdm(nbi_dat):
     folyzer.visualize_point(bridge, way_inf)
 
     count += 1
-    if count == 100: break
+    # if count == 400: break
 
 
 print("Writing info to CSV...")
 # writing to csv file 
-with open("out/NBI-Analysis-ovp.csv", 'w', newline='') as csvfile: 
+with open(f"out/{nbi_file}-Analysis.csv", 'w', newline='') as csvfile: 
     # creating a csv writer object 
     csvwriter = csv.writer(csvfile) 
         
     # writing the fields 
     csvwriter.writerow(nbi_dat[0].keys()) 
     
+    # writing the data rows 
     for bridge in nbi_dat:
-        # writing the data rows 
         csvwriter.writerow(list(bridge.values()))
 
 print("Done!")
